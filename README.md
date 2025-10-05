@@ -87,7 +87,7 @@ Before running the system, ensure you have the following installed:
 
 ---
 
-### 💳 Payment Service
+### Payment Service
 
 **Purpose:** Processes payments for ticket purchases.
 
