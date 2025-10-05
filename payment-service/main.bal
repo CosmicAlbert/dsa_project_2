@@ -3,7 +3,6 @@ import ballerina/log;
 import ballerina/time;
 import ballerina/random;
 
-// Types
 type Payment record {|
     string paymentId?;
     string ticketId;
@@ -23,17 +22,15 @@ type PaymentRequest record {|
     string paymentMethod;
 |};
 
-// In-memory storage
 map<Payment> payments = {};
 
-// HTTP Service
 service /payment on new http:Listener(9004) {
 
-    // Process payment
+
     resource function post process(@http:Payload PaymentRequest paymentReq) returns json|error {
         string paymentId = "PAY" + time:utcNow()[0].toString();
         
-        // Simulate payment processing with 90% success rate
+    
         int randomValue = check random:createIntInRange(1, 11);
         boolean paymentSuccess = randomValue <= 9;
 
@@ -77,7 +74,7 @@ service /payment on new http:Listener(9004) {
         };
     }
 
-    // Get payment details
+
     resource function get [string paymentId]() returns Payment|http:NotFound|error {
         if (payments.hasKey(paymentId)) {
             return payments.get(paymentId);
@@ -85,7 +82,7 @@ service /payment on new http:Listener(9004) {
         return http:NOT_FOUND;
     }
 
-    // Get payment history for passenger
+
     resource function get passenger/[string passengerId]() returns json|error {
         Payment[] passengerPayments = [];
         foreach var payment in payments {
@@ -100,7 +97,6 @@ service /payment on new http:Listener(9004) {
         };
     }
 
-    // Health check
     resource function get health() returns json {
         return {
             "service": "payment-service",
