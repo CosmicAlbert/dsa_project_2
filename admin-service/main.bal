@@ -2,7 +2,6 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/time;
 
-// Types
 type SalesReport record {|
     string reportId?;
     string reportType;
@@ -24,14 +23,11 @@ type TrafficReport record {|
     string generatedAt?;
 |};
 
-// In-memory storage
 SalesReport[] salesReports = [];
 TrafficReport[] trafficReports = [];
 
-// HTTP Service
 service /admin on new http:Listener(9006) {
 
-    // Generate sales report
     resource function post reports/sales(@http:Payload json reportParams) returns json|error {
         string reportId = "RPT" + time:utcNow()[0].toString();
 
@@ -52,12 +48,12 @@ service /admin on new http:Listener(9006) {
         return report;
     }
 
-    // Generate traffic report
+
     resource function post reports/traffic(@http:Payload json reportParams) returns json|error {
         string reportId = "TRPT" + time:utcNow()[0].toString();
         string routeId = check reportParams.routeId;
 
-        // Get route information from transport service
+    
         http:Client transportClient = check new("http://transport-service:9002");
         json|error routeResponse = transportClient->get("/transport/routes/" + routeId);
         
@@ -84,7 +80,7 @@ service /admin on new http:Listener(9006) {
         return report;
     }
 
-    // Publish service disruption
+
     resource function post disruptions(@http:Payload json disruption) returns json|error {
         log:printInfo("Service disruption published");
 
@@ -94,7 +90,6 @@ service /admin on new http:Listener(9006) {
         };
     }
 
-    // Get dashboard statistics
     resource function get dashboard/stats() returns json|error {
         return {
             "totalPassengers": 0,
@@ -106,21 +101,18 @@ service /admin on new http:Listener(9006) {
         };
     }
 
-    // Get all sales reports
     resource function get reports/sales() returns json|error {
         return {
             "reports": salesReports
         };
     }
 
-    // Get all traffic reports
     resource function get reports/traffic() returns json|error {
         return {
             "reports": trafficReports
         };
     }
 
-    // Health check
     resource function get health() returns json {
         return {
             "service": "admin-service",
