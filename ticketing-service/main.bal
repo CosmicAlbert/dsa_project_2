@@ -2,7 +2,7 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/time;
 
-// Types
+
 type Ticket record {|
     string ticketId?;
     string passengerId;
@@ -23,13 +23,12 @@ type TicketRequest record {|
     int? numberOfRides;
 |};
 
-// In-memory storage
+
 map<Ticket> tickets = {};
 
-// HTTP Service
 service /ticketing on new http:Listener(9003) {
 
-    // Create ticket request
+
     resource function post request(@http:Payload TicketRequest ticketReq) returns json|error {
         decimal amount = check calculateTicketAmount(ticketReq.ticketType, ticketReq.numberOfRides);
 
@@ -63,7 +62,7 @@ service /ticketing on new http:Listener(9003) {
         };
     }
 
-    // Validate ticket
+  
     resource function post validate/[string ticketId](@http:Payload json validationData) returns json|error {
         if (!tickets.hasKey(ticketId)) {
             return {
@@ -81,11 +80,11 @@ service /ticketing on new http:Listener(9003) {
             };
         }
 
-        // Update ticket status to VALIDATED
+    
         ticket.status = "VALIDATED";
         ticket.validatedAt = time:utcToString(time:utcNow());
 
-        // Decrement rides for multiple ride tickets
+    
         if (ticket.ticketType == "MULTIPLE_RIDES" && ticket.ridesRemaining is int) {
             int remainingRides = <int>ticket.ridesRemaining - 1;
             ticket.ridesRemaining = remainingRides;
@@ -105,7 +104,6 @@ service /ticketing on new http:Listener(9003) {
         };
     }
 
-    // Get ticket details
     resource function get [string ticketId]() returns Ticket|http:NotFound|error {
         if (tickets.hasKey(ticketId)) {
             return tickets.get(ticketId);
@@ -113,7 +111,7 @@ service /ticketing on new http:Listener(9003) {
         return http:NOT_FOUND;
     }
 
-    // Update ticket status to PAID (simulating payment confirmation)
+   
     resource function put [string ticketId]/pay() returns json|error {
         if (tickets.hasKey(ticketId)) {
             Ticket ticket = tickets.get(ticketId);
@@ -131,7 +129,7 @@ service /ticketing on new http:Listener(9003) {
         };
     }
 
-    // Health check
+
     resource function get health() returns json {
         return {
             "service": "ticketing-service",
@@ -141,7 +139,7 @@ service /ticketing on new http:Listener(9003) {
     }
 }
 
-// Utility functions
+
 function calculateTicketAmount(string ticketType, int? numberOfRides) returns decimal|error {
     match ticketType {
         "SINGLE_RIDE" => {
